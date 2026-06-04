@@ -1,0 +1,6 @@
+@TP_API_VGA_HostAddress = http://localhost:5229
+
+GET {{TP_API_VGA_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

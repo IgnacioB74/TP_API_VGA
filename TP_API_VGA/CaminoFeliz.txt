@@ -1,0 +1,129 @@
+/*CAMINO FELIZ*/}
+
+LOGIN - COMPLETO
+USUARIOS - COMPLETO
+GRUPOSMUSCULARES - COMPLETO
+EJERCICIOS - COMPLETO
+RUTINAS - COMPLETO
+PLANES - COMPLETO
+ALIMENTOS - COMPLETO
+DIETAS - COMPLETO (TIRA ERROR 204 QUE ES QUE NO TIENE QUE DEVOLVER, pero se corrige poniendole un mensaje) 
+PAGOS (aprobado/rechazado/get) - MAL
+
+
+
+--------------------------------------------
+--------------------------------------------
+			Registrar usuario -- COMPLETO
+--------------------------------------------
+--------------------------------------------
+//REGISTER
+{
+  "nombre": "Ignacio",
+  "apellido": "Blanco",
+  "mail": "ignacio@gmail.com",
+  "telefono": "3471555555",
+  "password": "123456",
+  "tipo": 1,
+  "username": "nacho"
+}
+--------------------------------------------
+--------------------------------------------
+				login -- COMPLETO
+--------------------------------------------
+--------------------------------------------
+//LOGIN
+{
+  "username": "nacho",
+  "password": "123456"
+}
+--------------------------------------------
+--------------------------------------------
+Autorizar en Swagger -- COMPLETO
+--------------------------------------------
+--------------------------------------------
+//DA EL TOKEN
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoibmFjaG8iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiIxIiwiVXNlcklkIjoiMCIsImV4cCI6MTc3OTE4NTMwN30.9G3B61jzZ_cYNjrKp86Ux2YnruPtyQ1yrGbwAlpXPEk"
+}
+
+-- 1. LO PEGAMOS EN AUTORIZE
+-- 2. CLOSE
+
+--------------------------------------------
+--------------------------------------------
+ver Grupos Musculares 
+--------------------------------------------
+--------------------------------------------
+
+--------------------------------------------
+--------------------------------------------
+
+Crear Ejercicio - COMPLETO
+
+--------------------------------------------
+--------------------------------------------
+
+// CREAMOS UN EJERCICIO
+{
+  "nombre": "Pecho plano",
+  "descripcion": "pecho plano en banca",
+  "iD_Grupo": 11
+}
+
+-- SE PUEDE VER Y ELIMINAR
+
+--------------------------------------------
+--------------------------------------------
+Crear Plan de Entrenamiento -- A MEDIAS
+// Crea ve y modifica
+--------------------------------------------
+--------------------------------------------
+Crear Rutina -- A MEDIAS
+// CREAR RUTINA
+{
+  "nombre": "Principiantes",
+  "descripcion": "Ideal para los que lleven - 5 años entrenando",
+  "intensidad": 3,
+  "ejerciciosXDia": 6
+}
+// Crea ve y modifica +  MEDIAS
+--------------------------------------------
+--------------------------------------------
+Asignar Rutina al Usuario -- A MEDIAS
+
+//Aginamos la rutina a un usuario
+{
+  "mail": "ignacio@gmail.com",
+  "nombre": "principiante"
+}
+
+--------------------------------------------
+--------------------------------------------
+Crear Alimentos	-- MAL FALTA
+// Crea ve y modifica
+--------------------------------------------
+--------------------------------------------
+Crear Dieta -- MAL FALTA
+// Crea ve y modifica
+--------------------------------------------
+--------------------------------------------
+Registrar Forma de Pago -- MAL FALTA
+// Crea ve y modifica
+--------------------------------------------
+--------------------------------------------
+Registrar Cuota -- MAL FALTA
+// Crea ve y modifica
+--------------------------------------------
+--------------------------------------------
+Registrar Pago
+// PAGOS
+{
+  "username": "nacho",
+  "mes": "enero",
+  "iD_FormaPago": 2,
+  "iD_Plan": 1
+}
+--------------------------------------------
+--------------------------------------------
+
