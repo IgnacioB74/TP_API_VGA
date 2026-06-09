@@ -76,8 +76,15 @@ public class AuthService : IAuthService
             new Claim("UserId", user.Id.ToString())
         };
 
+        var jwtKey = _config["Key"] ?? _config["Jwt:Key"];
+
+        if (string.IsNullOrWhiteSpace(jwtKey))
+        {
+            throw new Exception("Key no configurada.");
+        }
+
         var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(_config["Jwt:Key"]!)
+            Encoding.UTF8.GetBytes(jwtKey)
         );
 
         var creds = new SigningCredentials(

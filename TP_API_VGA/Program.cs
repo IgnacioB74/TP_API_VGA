@@ -63,9 +63,16 @@ builder.Services.AddScoped<CustomExceptionHandlingMiddleware>();
 // ==============================
 // JWT
 // ==============================
-var key = Encoding.UTF8.GetBytes(
-    builder.Configuration["Jwt:Key"]!
-);
+var jwtKey =
+    builder.Configuration["Key"]
+    ?? builder.Configuration["Jwt:Key"];
+
+if (string.IsNullOrWhiteSpace(jwtKey))
+{
+    throw new Exception("Key no configurada.");
+}
+
+var key = Encoding.UTF8.GetBytes(jwtKey);
 
 builder.Services.AddAuthentication(options =>
 {
@@ -101,7 +108,7 @@ builder.Services.AddSwaggerGen(setupAction =>
     {
         Title = "Gym API",
         Version = "v1",
-        Description = "API para gestión de gimnasio"
+        Description = "API para gestiï¿½n de gimnasio"
     });
 
     setupAction.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -176,7 +183,7 @@ app.UseSwaggerUI(options =>
 
     // Swagger disponible directamente en:
     // https://localhost:7161/
-    // Si prefieres usar /swagger, elimina la línea siguiente.
+    // Si prefieres usar /swagger, elimina la lï¿½nea siguiente.
     options.RoutePrefix = string.Empty;
 });
 
