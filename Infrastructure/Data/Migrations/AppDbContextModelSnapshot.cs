@@ -30,18 +30,19 @@ namespace Infrastructure.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID_Alimento"));
 
-                    b.Property<decimal>("Calorias")
-                        .HasColumnType("decimal(10,2)");
+                    b.Property<int>("Calorias")
+                        .HasColumnType("int");
 
-                    b.Property<decimal>("Carbohidratos")
-                        .HasColumnType("decimal(10,2)");
+                    b.Property<double>("Carbohidratos")
+                        .HasColumnType("float");
 
                     b.Property<string>("Descripcion")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
-                    b.Property<decimal>("Grasas")
-                        .HasColumnType("decimal(10,2)");
+                    b.Property<double>("Grasas")
+                        .HasColumnType("float");
 
                     b.Property<int>("ID_Categoria")
                         .HasColumnType("int");
@@ -54,8 +55,8 @@ namespace Infrastructure.Data.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
-                    b.Property<decimal>("Proteinas")
-                        .HasColumnType("decimal(10,2)");
+                    b.Property<double>("Proteinas")
+                        .HasColumnType("float");
 
                     b.HasKey("ID_Alimento");
 
@@ -141,33 +142,6 @@ namespace Infrastructure.Data.Migrations
                     b.ToTable("Cuotas");
                 });
 
-            modelBuilder.Entity("Domain.Entities.DietaDetalle", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
-
-                    b.Property<string>("Alimento")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Categoria")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Dia")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ID_Dieta")
-                        .HasColumnType("int");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("DietasDetalles");
-                });
-
             modelBuilder.Entity("Domain.Entities.Ejercicio", b =>
                 {
                     b.Property<int>("ID_Ejercicio")
@@ -177,7 +151,6 @@ namespace Infrastructure.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID_Ejercicio"));
 
                     b.Property<string>("Descripcion")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ID_Grupo")
@@ -221,11 +194,12 @@ namespace Infrastructure.Data.Migrations
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("ID");
 
-                    b.ToTable("FormasPago");
+                    b.ToTable("FormasPago", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.GrupoMuscular", b =>
@@ -253,8 +227,10 @@ namespace Infrastructure.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
-                    b.Property<int>("Estado")
-                        .HasColumnType("int");
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("datetime2");
@@ -267,15 +243,24 @@ namespace Infrastructure.Data.Migrations
 
                     b.Property<string>("Mes")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("ID");
 
-                    b.ToTable("Pagos");
+                    b.HasIndex("ID_FormaPago");
+
+                    b.HasIndex("ID_Plan");
+
+                    b.HasIndex("Username", "Mes")
+                        .IsUnique();
+
+                    b.ToTable("Pagos", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.PlanEntrenamiento", b =>
@@ -291,32 +276,36 @@ namespace Infrastructure.Data.Migrations
 
                     b.Property<string>("Descripcion")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<int>("Duracion")
                         .HasColumnType("int");
 
                     b.Property<string>("Nivel")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal>("Precio")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(10,2)");
 
                     b.HasKey("ID");
 
-                    b.ToTable("PlanesEntrenamiento");
+                    b.ToTable("PlanesEntrenamiento", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Rutina", b =>
                 {
                     b.Property<int>("ID_Rutina")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("ID_Rutina");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID_Rutina"));
 
@@ -325,21 +314,25 @@ namespace Infrastructure.Data.Migrations
 
                     b.Property<string>("Descripcion")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int>("EjerciciosXDia")
                         .HasColumnType("int");
 
-                    b.Property<int>("Intensidad")
-                        .HasColumnType("int");
+                    b.Property<string>("Intensidad")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("ID_Rutina");
 
-                    b.ToTable("Rutinas");
+                    b.ToTable("Rutinas", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.RutinaDetalle", b =>
@@ -350,11 +343,9 @@ namespace Infrastructure.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
-                    b.Property<int>("Dia")
-                        .HasColumnType("int");
-
-                    b.Property<int>("EjercicioID_Ejercicio")
-                        .HasColumnType("int");
+                    b.Property<string>("Dia")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ID_Ejercicio")
                         .HasColumnType("int");
@@ -362,14 +353,9 @@ namespace Infrastructure.Data.Migrations
                     b.Property<int>("ID_RutinaUsuario")
                         .HasColumnType("int");
 
-                    b.Property<int?>("RutinaUsuarioID")
-                        .HasColumnType("int");
-
                     b.HasKey("ID");
 
-                    b.HasIndex("EjercicioID_Ejercicio");
-
-                    b.HasIndex("RutinaUsuarioID");
+                    b.HasIndex("ID_Ejercicio");
 
                     b.ToTable("RutinasDetalles");
                 });
@@ -400,11 +386,9 @@ namespace Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Domain.Entities.Usuario", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("Mail")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<bool>("Activo")
                         .HasColumnType("bit");
@@ -419,10 +403,9 @@ namespace Infrastructure.Data.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<string>("Mail")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                    b.Property<int>("ID_UsuarioTipo")
+                        .HasColumnType("int")
+                        .HasColumnName("ID_UsuarioTipo");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
@@ -442,7 +425,7 @@ namespace Infrastructure.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("Id");
+                    b.HasKey("Mail");
 
                     b.HasIndex("Mail")
                         .IsUnique();
@@ -451,6 +434,56 @@ namespace Infrastructure.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Usuarios", (string)null);
+                });
+
+            modelBuilder.Entity("GymAPI.Entities.DietaDetalle", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<string>("Alimento")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Categoria")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Dia")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("ID_Dieta")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("DietasDetalles", (string)null);
+                });
+
+            modelBuilder.Entity("GymAPI.Entities.UsuarioDieta", b =>
+                {
+                    b.Property<int>("ID_Dieta")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Username")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("FechaFin")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaInicio")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ID_Dieta", "Username");
+
+                    b.ToTable("UsuarioDietas");
                 });
 
             modelBuilder.Entity("Domain.Entities.Alimento", b =>
@@ -483,17 +516,32 @@ namespace Infrastructure.Data.Migrations
                     b.Navigation("GrupoMuscular");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Pago", b =>
+                {
+                    b.HasOne("Domain.Entities.FormaPago", "FormaPago")
+                        .WithMany()
+                        .HasForeignKey("ID_FormaPago")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.PlanEntrenamiento", "Plan")
+                        .WithMany()
+                        .HasForeignKey("ID_Plan")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("FormaPago");
+
+                    b.Navigation("Plan");
+                });
+
             modelBuilder.Entity("Domain.Entities.RutinaDetalle", b =>
                 {
                     b.HasOne("Domain.Entities.Ejercicio", "Ejercicio")
                         .WithMany()
-                        .HasForeignKey("EjercicioID_Ejercicio")
+                        .HasForeignKey("ID_Ejercicio")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Domain.Entities.RutinaUsuario", null)
-                        .WithMany("Detalles")
-                        .HasForeignKey("RutinaUsuarioID");
 
                     b.Navigation("Ejercicio");
                 });
@@ -511,11 +559,6 @@ namespace Infrastructure.Data.Migrations
             modelBuilder.Entity("Domain.Entities.GrupoMuscular", b =>
                 {
                     b.Navigation("Ejercicios");
-                });
-
-            modelBuilder.Entity("Domain.Entities.RutinaUsuario", b =>
-                {
-                    b.Navigation("Detalles");
                 });
 #pragma warning restore 612, 618
         }

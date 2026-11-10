@@ -21,7 +21,12 @@ var builder = WebApplication.CreateBuilder(args);
 // ==============================
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection"))
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        // Reintentos: la base gratuita de Azure SQL se auto-pausa y tarda en despertar
+        sql => sql.EnableRetryOnFailure(
+            maxRetryCount: 6,
+            maxRetryDelay: TimeSpan.FromSeconds(30),
+            errorNumbersToAdd: null))
 );
 
 // ==============================
@@ -171,6 +176,25 @@ builder.Services.AddControllers();
 // ==============================
 
 var app = builder.Build();
+
+// ==============================
+// MIGRACIONES (code first)
+// Crea / actualiza la base al iniciar (en Azure la base arranca vacía)
+// ==============================
+using (var scope = app.Services.CreateScope())
+{
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        db.Database.Migrate();
+        logger.LogInformation("Migraciones aplicadas correctamente.");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "No se pudieron aplicar las migraciones.");
+    }
+}
 
 // ==============================
 // SWAGGER (SIEMPRE HABILITADO)

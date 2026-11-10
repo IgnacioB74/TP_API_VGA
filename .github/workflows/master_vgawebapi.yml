@@ -1,7 +1,12 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy ASP.Net Core app to Azure Web App - VGAWebApi
+# =====================================================================
+# CI/CD: compila la API, despliega la infraestructura en Azure (Bicep)
+# y publica la API en la Web App.
+#
+# Secrets requeridos (ver infra/README.md):
+#   AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID,
+#   AZURE_RESOURCE_GROUP, SQL_ADMIN_PASSWORD, JWT_KEY
+# =====================================================================
+name: CI/CD - Infraestructura y API en Azure
 
 on:
   push:
@@ -9,47 +14,87 @@ on:
       - master
   workflow_dispatch:
 
+permissions:
+  id-token: write   # login a Azure por OIDC (sin contraseñas)
+  contents: read
+
 jobs:
   build:
-    runs-on: windows-latest
-    permissions:
-      contents: read #This is required for actions/checkout
-
+    name: Build y publish
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up .NET Core
+      - name: Set up .NET 8
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.x'
+          dotnet-version: '8.0.x'
 
-      - name: Build with dotnet
-        run: dotnet build --configuration Release
+      - name: Restore
+        run: dotnet restore TP_API_VGA.sln
 
-      - name: dotnet publish
-        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+      - name: Build
+        run: dotnet build TP_API_VGA.sln --configuration Release --no-restore
 
-      - name: Upload artifact for deployment job
+      - name: Publish
+        run: dotnet publish TP_API_VGA/Presentation.csproj -c Release -o ./publish --no-build
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          name: api
+          path: ./publish
 
   deploy:
-    runs-on: windows-latest
+    name: Deploy a Azure
+    runs-on: ubuntu-latest
     needs: build
-    
     steps:
-      - name: Download artifact from build job
+      - uses: actions/checkout@v4
+
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: .net-app
-      
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
+          name: api
+          path: ./publish
+
+      - name: Login a Azure (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy infraestructura (App Service + SQL + Key Vault)
+        id: infra
+        env:
+          RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          SQL_ADMIN_PASSWORD: ${{ secrets.SQL_ADMIN_PASSWORD }}
+          JWT_KEY: ${{ secrets.JWT_KEY }}
+        run: |
+          az deployment group create \
+            --resource-group "$RESOURCE_GROUP" \
+            --name "vga-${{ github.run_number }}" \
+            --template-file infra/main.bicep \
+            --parameters sqlAdminPassword="$SQL_ADMIN_PASSWORD" jwtKey="$JWT_KEY" \
+            --query properties.outputs -o json > outputs.json
+          echo "webAppName=$(jq -r .webAppName.value outputs.json)" >> "$GITHUB_OUTPUT"
+          echo "webAppUrl=$(jq -r .webAppUrl.value outputs.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy API a la Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'VGAWebApi'
-          slot-name: 'Production'
-          package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_0525CF137AC94DA19A9D863408DB4C29 }}
+          app-name: ${{ steps.infra.outputs.webAppName }}
+          package: ./publish
+
+      - name: Smoke test
+        run: |
+          url="${{ steps.infra.outputs.webAppUrl }}/swagger/v1/swagger.json"
+          echo "Probando $url"
+          for i in $(seq 1 20); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "$url" || true)
+            echo "Intento $i: HTTP $code"
+            [ "$code" = "200" ] && echo "API online: ${{ steps.infra.outputs.webAppUrl }}" && exit 0
+            sleep 15
+          done
+          echo "La API no respondió 200" && exit 1
