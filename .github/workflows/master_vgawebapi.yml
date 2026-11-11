@@ -74,9 +74,13 @@ jobs:
           # Opcional: variable de repo AZURE_LOCATION para usar otra región
           # (por defecto, la del resource group)
           AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+          # Opcional: variable de repo AZURE_SQL_LOCATION si la región de la
+          # Web App no permite crear SQL Servers
+          AZURE_SQL_LOCATION: ${{ vars.AZURE_SQL_LOCATION }}
         run: |
           extra=()
           if [ -n "$AZURE_LOCATION" ]; then extra+=(location="$AZURE_LOCATION"); fi
+          if [ -n "$AZURE_SQL_LOCATION" ]; then extra+=(sqlLocation="$AZURE_SQL_LOCATION"); fi
           az deployment group create \
             --resource-group "$RESOURCE_GROUP" \
             --name "vga-${{ github.run_number }}" \
